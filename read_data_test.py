@@ -1,11 +1,14 @@
 from trec_car.read_data import *
 import json
+import os
 
-path = "../corpus/train/train.fold0.cbor"
+# path = "../corpus/train/train.fold0.cbor"
+
 
 articles = "../corpus/train/train.fold0.cbor.article.qrels"
-outlines = "../corpus/train/train.fold0.cbor.outlines"
-paragraphs = "../corpus/train/train.fold0.cbor.paragraphs"
+# outlines = "../corpus/train/train.fold0.cbor.outlines"
+paragraphs = "test200/train.test200.fold0.cbor.paragraphs"
+outlines = "test200/train.test200.cbor.outlines"
 
 
 def print_headers(file=outlines):
@@ -35,8 +38,10 @@ def print_paragraphs(file=paragraphs):
         Print the content of article's paragraphs
         Based on: https://github.com/TREMA-UNH/trec-car-tools
     """
+    i = 0
     with open(file, 'rb') as f:
         for p in iter_paragraphs(f):
+            i += 1
             print('\n', p.para_id, ':')
 
             # Print just the text
@@ -56,6 +61,7 @@ def print_paragraphs(file=paragraphs):
                      else (elem.text, None)
                      for elem in p.bodies]
             print(mixed)
+    print(i)
 
 
 def create_corpus_galago(file):
@@ -157,4 +163,5 @@ def create_queries_relevance(file, rm_version=1):
     json.dump(queries, out_stream)
     print("Done creating queries for relevance model.")
 
-create_queries_relevance(outlines)
+# create_queries(outlines)
+print_paragraphs()

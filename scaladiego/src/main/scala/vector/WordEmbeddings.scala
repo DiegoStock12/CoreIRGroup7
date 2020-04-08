@@ -1,5 +1,7 @@
 package vector
 
+import java.io.File
+
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 import org.deeplearning4j.models.word2vec.Word2Vec
 import org.lemurproject.galago.core.parse.Document
@@ -70,11 +72,15 @@ object WordEmbeddings {
     * Load the vectors
     */
   private def loadVectors(): Unit = {
+    val start = System.currentTimeMillis()
     println("Loading...")
     // Load the vectors so we can reuse them
     word2Vec = WordVectorSerializer.readWord2VecModel(VECTOR_PATH)
     println("Loaded vectors!")
+    println(s"It took ${System.currentTimeMillis()-start} ms to load")
   }
+
+
 
   def main(args: Array[String]): Unit = {
     loadVectors()
