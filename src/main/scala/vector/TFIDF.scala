@@ -27,7 +27,7 @@ object TFIDF {
     * @return
     */
   def query2tfidf(query: String,
-                          removeStopwords: Boolean = true): Array[Double] = {
+                  removeStopwords: Boolean = true): Array[Double] = {
     // Get the list of terms
     val terms: List[String] = query
       .split(" +")
@@ -45,7 +45,7 @@ object TFIDF {
     * @return
     */
   def doc2tfidf(doc: Document,
-                        removeStopwords: Boolean = true): Array[Double] = {
+                removeStopwords: Boolean = true): Array[Double] = {
     val terms: List[String] = doc.terms.asScala.toList
       .filter(x => !STOPWORDS.contains(x))
       .map(x => normalizeTerm(x))
@@ -142,6 +142,7 @@ object TFIDF {
       }
     }
 
+    println("Loaded corpus")
     // Return the map
     corp
   }

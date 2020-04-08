@@ -1,6 +1,9 @@
 package vector
 
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
+import org.deeplearning4j.models.word2vec.Word2Vec
 import org.lemurproject.galago.core.util.WordLists
+import vector.WordEmbeddings.{VECTOR_OUTPUT_PATH, word2Vec}
 
 import scala.collection.mutable
 import scala.collection.JavaConverters._
@@ -38,4 +41,7 @@ object Utils {
     */
   def normalizeTerm(term: String): String =
     term.replaceAll("[,.\"'`´“‘”″_’—=-]", "").trim
+
 }
+
+
