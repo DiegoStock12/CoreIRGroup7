@@ -19,8 +19,7 @@ object Utils {
     * @return
     */
   def cosineSimilarity(queryVec: Array[Double],
-                       docVec: Array[Double],
-                       normalize: Boolean = false): Double = {
+                       docVec: Array[Double]): Double = {
 
     val normQ = queryVec.map(x => Math.pow(x, 2)).sum
     val normDoc = docVec.map(x => Math.pow(x, 2)).sum

@@ -1,6 +1,5 @@
 package vector
 
-
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 import org.deeplearning4j.models.word2vec.Word2Vec
 import org.lemurproject.galago.core.parse.Document
@@ -20,8 +19,8 @@ object WordEmbeddings {
     * @param removeStopwords
     * @return
     */
-  private def query2Vec(query: String,
-                      removeStopwords: Boolean = true): Array[Double] = {
+  def query2Vec(query: String,
+                removeStopwords: Boolean = true): Array[Double] = {
     // Get the list of terms
     val terms: List[String] = query
       .split(" +")
@@ -38,8 +37,7 @@ object WordEmbeddings {
     * @param removeStopwords
     * @return
     */
-  private def doc2Vec(doc: Document,
-                      removeStopwords: Boolean = true): Array[Double] = {
+  def doc2Vec(doc: Document, removeStopwords: Boolean = true): Array[Double] = {
 
     val terms: List[String] = doc.terms.asScala.toList
       .filter(x => !STOPWORDS.contains(x))
@@ -58,14 +56,14 @@ object WordEmbeddings {
     // Create the vector we'll return
     var vec: Array[Double] = new Array[Double](300)
 
-    for(term ← terms) {
+    for (term ← terms) {
       val v = word2Vec.getWordVector(term)
       // Sum the components of the vectors
-      vec = (vec, v).zipped.map(_+_)
+      vec = (vec, v).zipped.map(_ + _)
     }
 
     // Return the averaged vector
-    vec.map(x => x/terms.size)
+    vec.map(x => x / terms.size)
   }
 
   /**
@@ -89,11 +87,9 @@ object WordEmbeddings {
     val query = "naval air squadron attack"
     println(query)
 
-
     // Get the vectors
     val queryVec = query2Vec(query)
     val docVec = doc2Vec(doc)
-
 
     // Calculate the cosine similarity between the W2V of query and doc
     println(cosineSimilarity(queryVec, docVec))

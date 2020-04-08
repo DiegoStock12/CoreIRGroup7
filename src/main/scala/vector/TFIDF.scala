@@ -112,6 +112,7 @@ object TFIDF {
       breakable {
         if (removeStopwords) if (STOPWORDS.contains(term)) {
           vocabulary.nextKey
+          break
         }
 
         // If not just search for it
