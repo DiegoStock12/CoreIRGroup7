@@ -80,7 +80,7 @@ object WordEmbeddings {
     loadVectors()
 
     val dc = new Document.DocumentComponents(true, true, true)
-    val retrieval = RetrievalFactory.instance(INDEX_PATH)
+    val retrieval = RetrievalFactory.instance(Utils.INDEX_PATH)
     val doc = retrieval.getDocument(retrieval.getDocumentName(28L), dc)
     System.out.println(doc.text)
 
