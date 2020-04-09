@@ -20,14 +20,16 @@ def print_headers(file=outlines):
             # get one data structure with nested (heading, [children]) pairs
             print(p)
             headings = p.nested_headings()
-            print('headings= ',  [ (str(section.heading), len(children)) for (section, children) in headings])
+            print('headings= ', [(str(section.heading), len(children)) for (section, children) in headings])
 
-            if len(p.outline())>2:
+            if len(p.outline()) > 2:
                 print('heading 1=', p.outline()[0])
 
-                print('deep headings= ', [(str(section.heading), len(children)) for (section, children) in p.deep_headings_list()])
+                print('deep headings= ',
+                      [(str(section.heading), len(children)) for (section, children) in p.deep_headings_list()])
 
-                print('flat headings= ', ["/".join([str(section.heading) for section in sectionpath]) for sectionpath in p.flat_headings_list()])
+                print('flat headings= ', ["/".join([str(section.heading) for section in sectionpath]) for sectionpath in
+                                          p.flat_headings_list()])
 
 
 def print_paragraphs(file=paragraphs):
@@ -91,6 +93,7 @@ def create_corpus_galago(file):
     stream.close()
     print("DONE!")
 
+
 # create_corpus_galago(paragraphs)
 
 
@@ -101,26 +104,25 @@ def create_queries(file):
         To run the queries execute the following (optional for more informative output):
             galago/bin/galago batch-search (--verbose=true) PATH_TO_FILE/queries.json
     """
-    out = r'queries.json'
+    out = r'queries_test.json'
     out_stream = open(out, 'w')
     queries = dict()
-    queries['index'] = r'PATH_TO_INDEX'
+    queries['index'] = r'/home/tomek/TUDelft/Courses/Information Retrieval/index'
     queries['requested'] = 5
     queries['processingModel'] = 'org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel'
     queries['scorer'] = 'bm25'
     queries['queries'] = []
-    cnt = 1
     for p in iter_annotations(open(file, 'rb')):
-        queries['queries'].append({'number': str(cnt), 'text': '#combine(' + p.page_name + ')'})
+        queries['queries'].append({'number': str(p.page_id), 'text': '#combine(' + p.page_name + ')'})
         flattened_heading_list = p.flat_headings_list()
-        cnt += 1
-        for query in [((" ".join([str(headings.heading)
-                                for headings in heading_path])))
-                                for heading_path in flattened_heading_list]:
-            queries['queries'].append({'number': str(cnt), 'text': '#combine(' + p.page_name + ' ' + query + ')'})
-            cnt += 1
+        for query, query_id in [((" ".join([str(headings.heading) for headings in heading_path])),
+                                 "/".join([str(headings.headingId) for headings in heading_path]))
+                                 for heading_path in flattened_heading_list]:
+            queries['queries'].append({'number': str(p.page_id + '/' + query_id),
+                                       'text': '#combine(' + p.page_name + ' ' + query + ')'})
     json.dump(queries, out_stream)
     print("Done creating queries.")
+
 
 # create_queries(outlines)
 
@@ -135,7 +137,7 @@ def create_queries_relevance(file, rm_version=1):
     out = r'queries_relevance_test.json'
     out_stream = open(out, 'w')
     queries = dict()
-    queries['index'] = r'/Users/erwin/Documents/TU/MSY1/Q3/IR/CORE_IR/corpus'
+    queries['index'] = r'/home/tomek/TUDelft/Courses/Information Retrieval/index'
     queries['requested'] = 5
     queries['processingModel'] = 'org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel'
     queries['relevanceModel'] = 'org.lemurproject.galago.core.retrieval.prf.RelevanceModel' + str(rm_version)
@@ -144,16 +146,14 @@ def create_queries_relevance(file, rm_version=1):
     queries['fbOrigWeight'] = 0.75
     queries['scorer'] = 'bm25'
     queries['queries'] = []
-    cnt = 1
     for p in iter_annotations(open(file, 'rb')):
-        queries['queries'].append({'number': str(cnt), 'text': '#rm(' + p.page_name + ')'})
+        queries['queries'].append({'number': str(p.page_id), 'text': '#rm(' + p.page_name + ')'})
         flattened_heading_list = p.flat_headings_list()
-        cnt += 1
-        for query in [((" ".join([str(headings.heading)
-                                for headings in heading_path])))
-                                for heading_path in flattened_heading_list]:
-            queries['queries'].append({'number': str(cnt), 'text': '#rm(' + p.page_name + ' ' + query + ')'})
-            cnt += 1
+        for query, query_id in [((" ".join([str(headings.heading) for headings in heading_path])),
+                                 "/".join([str(headings.headingId) for headings in heading_path]))
+                                 for heading_path in flattened_heading_list]:
+            queries['queries'].append({'number': str(p.page_id + '/' + query_id),
+                                       'text': '#rm(' + p.page_name + ' ' + query + ')'})
     json.dump(queries, out_stream)
     print("Done creating queries for relevance model.")
 
