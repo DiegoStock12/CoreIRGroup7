@@ -110,22 +110,24 @@ def create_queries(file):
         To run the queries execute the following (optional for more informative output):
             galago/bin/galago batch-search (--verbose=true) PATH_TO_FILE/queries.json
     """
-    out = r'queries_test.json'
+    out = r'queries.json'
     out_stream = open(out, 'w')
     queries = dict()
-    queries['index'] = r'/home/tomek/TUDelft/Courses/Information Retrieval/index'
-    queries['requested'] = 5
+    queries['index'] = r'../ir_core/index'
+    queries['requested'] = 100
     queries['processingModel'] = 'org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel'
-    queries['scorer'] = 'bm25'
+    # queries['scorer'] = 'bm25'
     queries['queries'] = []
     for p in iter_annotations(open(file, 'rb')):
-        queries['queries'].append({'number': str(p.page_id), 'text': '#combine(' + p.page_name + ')'})
+        queries['queries'].append({'number': str(p.page_id), 'text': p.page_name})
+        # queries['queries'].append({'number': str(p.page_id), 'text': '#combine(' + p.page_name + ')'})
         flattened_heading_list = p.flat_headings_list()
         for query, query_id in [((" ".join([str(headings.heading) for headings in heading_path])),
                                  "/".join([str(headings.headingId) for headings in heading_path]))
                                  for heading_path in flattened_heading_list]:
             queries['queries'].append({'number': str(p.page_id + '/' + query_id),
-                                       'text': '#combine(' + p.page_name + ' ' + query + ')'})
+                                       'text': p.page_name + ' ' + query})
+                                        # 'text': '#combine(' + p.page_name + ' ' + query + ')'})
     json.dump(queries, out_stream)
     print("Done creating queries.")
 
@@ -143,14 +145,14 @@ def create_queries_relevance(file, rm_version=1):
     out = r'queries_relevance_test.json'
     out_stream = open(out, 'w')
     queries = dict()
-    queries['index'] = r'/home/tomek/TUDelft/Courses/Information Retrieval/index'
-    queries['requested'] = 5
+    queries['index'] = r'../ir_core/index'
+    queries['requested'] = 100
     queries['processingModel'] = 'org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel'
     queries['relevanceModel'] = 'org.lemurproject.galago.core.retrieval.prf.RelevanceModel' + str(rm_version)
-    queries['fbDocs'] = 10
-    queries['fbTerm'] = 5
-    queries['fbOrigWeight'] = 0.75
-    queries['scorer'] = 'bm25'
+    # queries['fbDocs'] = 10
+    # queries['fbTerm'] = 5
+    # queries['fbOrigWeight'] = 0.75
+    # queries['scorer'] = 'bm25'
     queries['queries'] = []
     for p in iter_annotations(open(file, 'rb')):
         queries['queries'].append({'number': str(p.page_id), 'text': '#rm(' + p.page_name + ')'})
@@ -164,4 +166,4 @@ def create_queries_relevance(file, rm_version=1):
     print("Done creating queries for relevance model.")
 
 # create_queries(outlines)
-print_paragraphs()
+create_queries(outlines)
