@@ -14,6 +14,7 @@ object WordEmbeddings {
 
   private var word2Vec: Word2Vec = _
   private val VECTOR_PATH = "../ir_core/GoogleNews-vectors-negative300.bin.gz"
+  private val V = "../ir_core/crawl-300d-2M.vec/crawl-300d-2M.vec"
 
   /**
     * Convert query into the tfidf representation
@@ -75,7 +76,10 @@ object WordEmbeddings {
     val start = System.currentTimeMillis()
     println("Loading...")
     // Load the vectors so we can reuse them
-    word2Vec = WordVectorSerializer.readWord2VecModel(VECTOR_PATH)
+    val serialized =  WordVectorSerializer.loadTxt(new File(V))
+    word2Vec = new Word2Vec()
+    word2Vec.setLookupTable(serialized.getLeft)
+    word2Vec.setVocab(serialized.getRight)
     println("Loaded vectors!")
     println(s"It took ${System.currentTimeMillis()-start} ms to load")
   }
