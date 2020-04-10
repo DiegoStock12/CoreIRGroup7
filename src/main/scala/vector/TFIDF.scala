@@ -9,6 +9,7 @@ import org.lemurproject.galago.core.retrieval.query.StructuredQuery
 import vector.Utils._
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable.ListMap
 import scala.collection.{immutable, mutable}
 import scala.util.control.Breaks._
 
@@ -26,8 +27,8 @@ object TFIDF {
     * @param removeStopwords
     * @return
     */
-  private def query2tfidf(query: String,
-                          removeStopwords: Boolean = true): Array[Double] = {
+  def query2tfidf(query: String,
+                  removeStopwords: Boolean = true): Array[Double] = {
     // Get the list of terms
     val terms: List[String] = query
       .split(" +")
@@ -44,8 +45,8 @@ object TFIDF {
     * @param removeStopwords
     * @return
     */
-  private def doc2tfidf(doc: Document,
-                        removeStopwords: Boolean = true): Array[Double] = {
+  def doc2tfidf(doc: Document,
+                removeStopwords: Boolean = true): Array[Double] = {
     val terms: List[String] = doc.terms.asScala.toList
       .filter(x => !STOPWORDS.contains(x))
       .map(x => normalizeTerm(x))
@@ -90,13 +91,13 @@ object TFIDF {
     var corp: immutable.TreeMap[String, Double] = immutable.TreeMap()
 
     // Get the vocabulary directly from the file (the stemmed term)!
-    val postings = new File(new File(INDEX_PATH), "field.porter.text")
+    val postings = new File(new File(INDEX_PATH), "field.krovetz.text")
     // Get the retrieval object to search for the IDF of each
     val retrieval = RetrievalFactory.instance(INDEX_PATH)
 
     val index = new DiskIndex(INDEX_PATH)
     val posting = DiskIndex.openIndexPart(postings.getAbsolutePath)
-    val ips = index.getIndexPartStatistics("postings.porter")
+    val ips = index.getIndexPartStatistics("postings.krovetz")
 
     // Get the total number of documents
     N_DOCS = ips.highestDocumentCount
@@ -142,6 +143,7 @@ object TFIDF {
       }
     }
 
+    println("Loaded corpus")
     // Return the map
     corp
   }

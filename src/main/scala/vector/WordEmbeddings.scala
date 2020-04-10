@@ -1,5 +1,7 @@
 package vector
 
+import java.io.File
+
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer
 import org.deeplearning4j.models.word2vec.Word2Vec
 import org.lemurproject.galago.core.parse.Document
@@ -12,6 +14,7 @@ object WordEmbeddings {
 
   private var word2Vec: Word2Vec = _
   private val VECTOR_PATH = "../ir_core/GoogleNews-vectors-negative300.bin.gz"
+  private val V = "../ir_core/crawl-300d-2M.vec/crawl-300d-2M.vec"
 
   /**
     * Convert query into the tfidf representation
@@ -70,17 +73,24 @@ object WordEmbeddings {
     * Load the vectors
     */
   private def loadVectors(): Unit = {
+    val start = System.currentTimeMillis()
     println("Loading...")
     // Load the vectors so we can reuse them
-    word2Vec = WordVectorSerializer.readWord2VecModel(VECTOR_PATH)
+    val serialized =  WordVectorSerializer.loadTxt(new File(V))
+    word2Vec = new Word2Vec()
+    word2Vec.setLookupTable(serialized.getLeft)
+    word2Vec.setVocab(serialized.getRight)
     println("Loaded vectors!")
+    println(s"It took ${System.currentTimeMillis()-start} ms to load")
   }
+
+
 
   def main(args: Array[String]): Unit = {
     loadVectors()
 
     val dc = new Document.DocumentComponents(true, true, true)
-    val retrieval = RetrievalFactory.instance(INDEX_PATH)
+    val retrieval = RetrievalFactory.instance(Utils.INDEX_PATH)
     val doc = retrieval.getDocument(retrieval.getDocumentName(28L), dc)
     System.out.println(doc.text)
 
