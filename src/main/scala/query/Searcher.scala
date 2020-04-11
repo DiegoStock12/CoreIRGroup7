@@ -5,7 +5,7 @@ import java.io.PrintWriter
 import org.lemurproject.galago.core.retrieval.query.{Node, StructuredQuery}
 import org.lemurproject.galago.core.retrieval.{Results, Retrieval, RetrievalFactory}
 import org.lemurproject.galago.utility.Parameters
-import query.QueryReader.{QueryObject, SingleQuery}
+import query.DataReader.{QueryObject, SingleQuery}
 
 object Searcher {
 
@@ -16,7 +16,7 @@ object Searcher {
     * @param queriesPath
     */
   def search(queriesPath: String) = {
-    val queryObject: QueryObject = QueryReader.readQueries(queriesPath)
+    val queryObject: QueryObject = DataReader.readQueries(queriesPath)
     val queryParams = Parameters.create
 
     queryParams.put("index", queryObject.index)

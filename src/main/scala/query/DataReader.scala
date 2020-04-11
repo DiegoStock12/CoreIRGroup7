@@ -5,7 +5,7 @@ import io.circe.generic.auto._
 
 import scala.io.Source
 
-object QueryReader {
+object DataReader {
 
   case class QueryObject(index: String, requested: Int, processingModel: String,
                          relevanceModel: Option[String], fbDocs: Option[Int], fbTerm: Option[Int],
@@ -19,6 +19,7 @@ object QueryReader {
 
   /**
    * Reads json with queries and create custom class with all the partameters and queries
+   *
    * @param queryFile path to file with queries
    * @return QueryObject
    */
@@ -38,10 +39,37 @@ object QueryReader {
     decodingResult
   }
 
+  /**
+   * Reads the file with explicit feedback for which document are relevant for which query.
+   * Necessary for Rocchio query expansion.
+   *
+   * @param groundTruthPath Path to the file with explicit feedback.
+   * @return Mapping of the queries to their relevant documents in the corpus.
+   */
+  def readQueryToRelevantDocuments(groundTruthPath: String): Map[String, Set[String]] = {
+    val bufferedSource = Source.fromFile(groundTruthPath)
+    var queryToRelevantDocs: Map[String, Set[String]] = Map()
+
+    for (line <- bufferedSource.getLines) {
+      val splitted: Array[String] = line.split(" ")
+      val query: String = splitted(0)
+      val docId: String = splitted(2)
+
+      val querySet: Option[Set[String]] = queryToRelevantDocs.get(query)
+      if (querySet.isDefined) {
+        val newQuerySet: Set[String] = querySet.get + docId
+        queryToRelevantDocs += (query -> newQuerySet)
+      }
+      else {
+        queryToRelevantDocs += (query -> Set(docId))
+      }
+    }
+    bufferedSource.close()
+    queryToRelevantDocs
+  }
+
   def main(args: Array[String]): Unit = {
-    val queryJson: String = "queries.json"
-    val query: QueryObject = readQueries(queryJson)
-    print(query)
+
   }
 
 }
