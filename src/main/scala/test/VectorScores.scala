@@ -11,8 +11,8 @@ import org.lemurproject.galago.utility.Parameters
 import vector.Idf
 import vector.Utils._
 import vector.TFIDF._
-import query.QueryReader
-import query.QueryReader.QueryObject
+import query.DataReader
+import query.DataReader.QueryObject
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable
@@ -37,7 +37,7 @@ object VectorScores {
     println(docMap.head._2.length)
 
     // Load the queries
-    val queryObject: QueryObject = QueryReader.readQueries(QUERIES_PATH)
+    val queryObject: QueryObject = DataReader.readQueries(QUERIES_PATH)
     val stemmer: KrovetzStemmer = new KrovetzStemmer()
     val dc = new Document.DocumentComponents(true, true, true)
 
