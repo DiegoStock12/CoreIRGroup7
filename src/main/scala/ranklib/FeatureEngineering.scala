@@ -2,8 +2,10 @@ package ranklib
 
 import org.lemurproject.galago.core.parse.Document
 import org.lemurproject.galago.core.retrieval.query.{Node, StructuredQuery}
-import org.lemurproject.galago.core.retrieval.{Retrieval, RetrievalFactory}
+import org.lemurproject.galago.core.retrieval.{Results, Retrieval, RetrievalFactory}
 import org.lemurproject.galago.utility.Parameters
+import query.DataReader.SingleQuery
+import query_expansion.Rocchio.{expandQuery, indetifyDocs, prepareQueries, results2Vector, runQuery}
 import vector.TFIDF._
 import vector.Utils._
 
@@ -16,21 +18,16 @@ import scala.collection.JavaConverters._
   */
 object FeatureEngineering {
 
+  val queryCount: Int = 0
+
   def main(args: Array[String]): Unit = {
 
     // Set the global parameters
     val globalParams: Parameters = Parameters.create()
     globalParams.set("index", INDEX_PATH)
 
-    val retrieval: Retrieval = RetrievalFactory.instance(globalParams)
-
-    // Change this to EVERY QUERY IN THE RELEVANCE FILE
-
-    val queryID = 1
-//    // Normal query (query likelihood)
-    val query = "naval attack of the boat"
-//    // RM3 query
-    val rmQuery = "#rm(" + query + ")"
+    // Spaghetti code, I'm hungry.
+    val (queries, queryParams) = prepareQueries()
 
     // Set the parameters for the query retrieval
     val p = Parameters.create()
@@ -39,7 +36,19 @@ object FeatureEngineering {
     p.set("requested", 10)
     p.set("mu", 2000)
 
-    val root: Node = StructuredQuery.parse(rmQuery)
+    queries.foreach { query =>
+      runQuery(query, p, globalParams)
+    }
+
+  }
+
+  def runQuery(query: SingleQuery, p: Parameters, globalParams: Parameters): Unit = {
+    val retrieval: Retrieval = RetrievalFactory.instance(globalParams)
+    val id: String = query.number
+    val queryText: String = query.text
+    val rmQueryText = "#rm(" + query + ")"
+
+    val root: Node = StructuredQuery.parse(queryText)
 
     // Transform the query with the parameters
     val transf = retrieval.transformQuery(root, p)
@@ -58,7 +67,7 @@ object FeatureEngineering {
         transf.getInternalNodes.asScala.map(_.getChild(1).getDefaultParameter)
 
       // Get the normal tfidf vector and the augmented vector
-      val normalQvec = query2tfidf(query)
+      val normalQvec = query2tfidf(queryText)
       val rmVec = query2tfidf(terms.mkString(" "))
 
       // Get the document to compare it
@@ -72,13 +81,8 @@ object FeatureEngineering {
 
       val TFIDFscore = cosineSimilarity(normalQvec, docVec)
       val TFIDFRM1score = cosineSimilarity(rmVec, docVec)
-      println(s"1 qid:${queryID} 1:${bm25score} 2:${TFIDFscore} 3:${TFIDFRM1score} # Query: ${query} , DocID: ${docName}")
+      println(s"1 qid:${queryCount} 1:${bm25score} 2:${TFIDFscore} 3:${TFIDFRM1score} # Query: ${id} , DocID: ${docName}")
     })
-
-
-
-
-
   }
 
 }
