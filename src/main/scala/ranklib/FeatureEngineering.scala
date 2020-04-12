@@ -4,12 +4,15 @@ import org.lemurproject.galago.core.parse.Document
 import org.lemurproject.galago.core.retrieval.query.{Node, StructuredQuery}
 import org.lemurproject.galago.core.retrieval.{Results, Retrieval, RetrievalFactory}
 import org.lemurproject.galago.utility.Parameters
-import query.DataReader.SingleQuery
-import query_expansion.Rocchio.{expandQuery, indetifyDocs, prepareQueries, results2Vector, runQuery}
+import query.DataReader.{SingleQuery, readQueryToRelevantDocuments}
+import query_expansion.Rocchio.{QREL_PATH, expandQuery, indetifyDocs, prepareQueries, results2Vector, runQuery}
 import vector.TFIDF._
 import vector.Utils._
 
+import java.io.PrintWriter
+
 import scala.collection.JavaConverters._
+import scala.io.Source
 
 /**
   * Test different retrieval options
@@ -18,7 +21,11 @@ import scala.collection.JavaConverters._
   */
 object FeatureEngineering {
 
-  val queryCount: Int = 0
+  val QREL_PATH: String = "../corpus/train/train.pages.cbor-hierarchical.qrels"
+
+  val queryToRelevantDocs: Map[String, Set[String]] = readQueryToRelevantDocuments(QREL_PATH)
+
+  var queryCount: Int = 0
 
   def main(args: Array[String]): Unit = {
 
@@ -36,17 +43,27 @@ object FeatureEngineering {
     p.set("requested", 10)
     p.set("mu", 2000)
 
+    // write to file
+    val pw = new PrintWriter("ranklib_G7.txt")
+
+    // Run for each query
     queries.foreach { query =>
-      runQuery(query, p, globalParams)
+      queryCount += 1
+      if(queryCount>990) break
+      print(queryCount)
+      pw.write(runQuery(query, p, globalParams))
+      println()
     }
+
+    pw.close
 
   }
 
-  def runQuery(query: SingleQuery, p: Parameters, globalParams: Parameters): Unit = {
+  def runQuery(query: SingleQuery, p: Parameters, globalParams: Parameters): String = {
     val retrieval: Retrieval = RetrievalFactory.instance(globalParams)
     val id: String = query.number
     val queryText: String = query.text
-    val rmQueryText = "#rm(" + query + ")"
+//    val rmQueryText = "#rm(" + query + ")"
 
     val root: Node = StructuredQuery.parse(queryText)
 
@@ -56,11 +73,17 @@ object FeatureEngineering {
     // Get the ranking of the documents
     val ranking = retrieval.executeQuery(transf, p).scoredDocuments.asScala
 
+    // Returnblock
+    var retBlock : String = ""
+
     // for each of the docs, get the associated rankings
     ranking.foreach(sd => {
       // get docname and the idf score
       val docName = sd.documentName
       val bm25score = sd.score
+
+      val relevancy = if(queryToRelevantDocs.getOrElse("enwiki:" + id, Set()).contains(docName)) 1 else 0
+      print(" " + relevancy)
 
       // Get the terms used in the RM3 query as an array
       val terms =
@@ -81,8 +104,10 @@ object FeatureEngineering {
 
       val TFIDFscore = cosineSimilarity(normalQvec, docVec)
       val TFIDFRM1score = cosineSimilarity(rmVec, docVec)
-      println(s"1 qid:${queryCount} 1:${bm25score} 2:${TFIDFscore} 3:${TFIDFRM1score} # Query: ${id} , DocID: ${docName}")
+
+      retBlock += s"${relevancy} qid:${queryCount} 1:${bm25score} 2:${TFIDFscore} 3:${TFIDFRM1score} # Query: ${id} , DocID: ${docName} \n"
     })
+    retBlock
   }
 
 }
