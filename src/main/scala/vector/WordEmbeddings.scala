@@ -12,9 +12,12 @@ import scala.collection.JavaConverters._
 
 object WordEmbeddings {
 
-  private var word2Vec: Word2Vec = _
+  // Vector file paths
   private val VECTOR_PATH = "../ir_core/GoogleNews-vectors-negative300.bin.gz"
-  private val V = "../ir_core/crawl-300d-2M.vec/crawl-300d-2M.vec"
+  private val FASTTEXT_VECTOR_PATH = "../ir_core/crawl-300d-2M.vec/crawl-300d-2M.vec"
+
+  // Load the vector model (can take 4-5 min)
+  private val word2Vec: Word2Vec = loadVectors(FASTTEXT_VECTOR_PATH)
 
   /**
     * Convert query into the tfidf representation
@@ -72,23 +75,27 @@ object WordEmbeddings {
   /**
     * Load the vectors
     */
-  private def loadVectors(): Unit = {
+  private def loadVectors(path: String): Word2Vec = {
     val start = System.currentTimeMillis()
     println("Loading...")
     // Load the vectors so we can reuse them
-    val serialized =  WordVectorSerializer.loadTxt(new File(V))
-    word2Vec = new Word2Vec()
+    val serialized =  WordVectorSerializer.loadTxt(new File(path))
+    val vectors : Word2Vec = new Word2Vec()
     word2Vec.setLookupTable(serialized.getLeft)
     word2Vec.setVocab(serialized.getRight)
     println("Loaded vectors!")
     println(s"It took ${System.currentTimeMillis()-start} ms to load")
+    vectors
   }
 
 
-
+  /**
+  * Main for testing purposes
+   *
+   * @param args
+   */
+  // TODO delete the main
   def main(args: Array[String]): Unit = {
-    loadVectors()
-
     val dc = new Document.DocumentComponents(true, true, true)
     val retrieval = RetrievalFactory.instance(Utils.INDEX_PATH)
     val doc = retrieval.getDocument(retrieval.getDocumentName(28L), dc)
