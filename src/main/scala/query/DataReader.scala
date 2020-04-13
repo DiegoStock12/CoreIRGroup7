@@ -7,7 +7,7 @@ import scala.io.Source
 
 object DataReader {
 
-  case class QueryObject(index: String, requested: Int, processingModel: String,
+  case class QueryObject(index: String, requested: Option[Int], processingModel: Option[String],
                          relevanceModel: Option[String], fbDocs: Option[Int], fbTerm: Option[Int],
                          fbOrigWeight: Option[Double], scorer: Option[String], queries: List[SingleQuery])
 

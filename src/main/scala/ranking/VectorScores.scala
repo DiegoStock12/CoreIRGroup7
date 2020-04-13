@@ -129,7 +129,7 @@ object VectorScores {
       val score: Double = result._2
       val rank = index + 1
 
-      writer.println(s"enwiki:$queryId Q0 $docId $rank $score TEST")
+      writer.println(s"$queryId Q0 $docId $rank $score TEST")
     }
   }
 
