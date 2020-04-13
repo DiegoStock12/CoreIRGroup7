@@ -81,8 +81,9 @@ object WordEmbeddings {
     // Load the vectors so we can reuse them
     val serialized =  WordVectorSerializer.loadTxt(new File(path))
     val vectors : Word2Vec = new Word2Vec()
-    word2Vec.setLookupTable(serialized.getLeft)
-    word2Vec.setVocab(serialized.getRight)
+    vectors.setLookupTable(serialized.getLeft)
+    vectors.setVocab(serialized.getRight)
+
     println("Loaded vectors!")
     println(s"It took ${System.currentTimeMillis()-start} ms to load")
     vectors

@@ -100,7 +100,8 @@ object TFIDF {
     val ips = index.getIndexPartStatistics("postings.krovetz")
 
     // Get the total number of documents
-    N_DOCS = ips.highestDocumentCount
+    N_DOCS = 5080
+    
 
     val vocabulary = posting.getIterator
 
@@ -125,9 +126,10 @@ object TFIDF {
           // Get stats of the node
           val termStats = retrieval.getNodeStatistics(termNode)
           val docFreq = termStats.nodeDocumentCount
+          println(term +" --> " + docFreq)
 
           //Compute smoothed idf
-          val idf = Math.log(N_DOCS.toDouble / (docFreq + 1) + 1)
+          val idf = Math.log10(N_DOCS.toDouble / (docFreq + 1) + 1)
           // Add the entry to the map
           corp += (term → idf)
 
@@ -154,6 +156,9 @@ object TFIDF {
     val retrieval = RetrievalFactory.instance(INDEX_PATH)
     val doc = retrieval.getDocument(retrieval.getDocumentName(28L), dc)
     println(doc.text)
+
+    //corpus.foreach(u => println(s"${u._1} --> ${u._2}"))
+    corpus.toSeq.sortWith(_._2 < _._2).take(20).foreach(println)
 
     val query = "naval air squadron attack"
     val queryVec = query2tfidf(query)

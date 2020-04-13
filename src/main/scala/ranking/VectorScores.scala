@@ -30,14 +30,14 @@ object VectorScores {
 
   // Global variables for search and stemming
   val QUERIES_PATH = "queries.json"
-  val OUTPUT_FILE = "results.run"
+  val OUTPUT_FILE = "Word2Vec-RM3.run"
 
   val writer: PrintWriter = new PrintWriter(OUTPUT_FILE)
   val stemmer: KrovetzStemmer = new KrovetzStemmer()
   val retrieval: Retrieval = RetrievalFactory.instance(INDEX_PATH)
 
   // Type of vector to be used
-  val VECTOR_TYPE: VectorType = Idf
+  val VECTOR_TYPE: VectorType = W2V
 
   // Create the parameters for the search
   val params: Parameters = {
@@ -51,7 +51,7 @@ object VectorScores {
 
   // Hashmap that caches the vector representation of each document
   val docMap: immutable.HashMap[String, Array[Double]] =
-    calculateDocumentVectors(Idf)
+    calculateDocumentVectors(VECTOR_TYPE)
 
   /**
     * Computes the top 10 results for a query
