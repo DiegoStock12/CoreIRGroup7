@@ -1,15 +1,13 @@
 package test
 
-import java.io.File
-
 import org.lemurproject.galago.core.index.disk.DiskIndex
 import org.lemurproject.galago.core.parse.Document
 import org.lemurproject.galago.core.retrieval.RetrievalFactory
-import vector.Utils.INDEX_PATH
-import scala.collection.JavaConverters._
-
 import vector.TFIDF._
 import vector.Utils
+import vector.Utils.INDEX_PATH
+
+import scala.collection.JavaConverters._
 
 object LoopDocs {
 

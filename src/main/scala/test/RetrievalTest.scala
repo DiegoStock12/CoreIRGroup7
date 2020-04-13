@@ -7,6 +7,8 @@ import org.lemurproject.galago.utility.Parameters
 import vector.Utils._
 import vector.TFIDF._
 
+
+
 import scala.collection.JavaConverters._
 
 /**
