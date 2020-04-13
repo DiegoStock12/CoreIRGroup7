@@ -25,7 +25,7 @@ object LoopDocs {
 
     // Get the number of docs in the index
     val index = new DiskIndex(INDEX_PATH)
-    val ips = index.getIndexPartStatistics("postings.porter")
+    val ips = index.getIndexPartStatistics("postings.krovetz")
 
     // Get the total number of documents
     val N_DOCS = ips.highestDocumentCount

@@ -1,6 +1,7 @@
 package vector
 
 import org.lemurproject.galago.core.index.disk.DiskIndex
+import org.lemurproject.galago.core.index.stats.IndexPartStatistics
 import org.lemurproject.galago.core.parse.Document
 import org.lemurproject.galago.core.retrieval.{Retrieval, RetrievalFactory}
 import org.lemurproject.galago.core.util.WordLists
@@ -8,7 +9,6 @@ import org.lemurproject.galago.core.util.WordLists
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.immutable
-
 import vector.WordEmbeddings.doc2Vec
 import vector.TFIDF.doc2tfidf
 
@@ -18,8 +18,6 @@ case object W2V extends VectorType
 case object Idf extends VectorType
 
 object Utils {
-
-
 
   val INDEX_PATH: String = "../ir_core/index"
   // Set of stopwords
@@ -60,11 +58,12 @@ object Utils {
     // Get the number of documents in the index to loop
     // Get the number of docs in the index
     val index = new DiskIndex(INDEX_PATH)
-    val ips = index.getIndexPartStatistics("postings.krovetz")
+    val ips : IndexPartStatistics = index.getIndexPartStatistics("postings.krovetz")
 
-    // Get the total number of documents
-    val N_DOCS = ips.highestDocumentCount
-    println(N_DOCS)
+    // Get the total number of documents, the index statistics doesn't show all of the documents!
+    // The total number of docs is shown when creating the galago index and that's 5080
+    val N_DOCS = 5080
+
 
     // Get the retrieval object!
     val retrieval: Retrieval = RetrievalFactory.instance(INDEX_PATH)
