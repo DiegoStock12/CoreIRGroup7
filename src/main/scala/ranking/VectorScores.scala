@@ -30,14 +30,14 @@ object VectorScores {
 
   // Global variables for search and stemming
   val QUERIES_PATH = "queries.json"
-  val OUTPUT_FILE = "Word2Vec-RM3.run"
+  val OUTPUT_FILE = "test.run"
 
   val writer: PrintWriter = new PrintWriter(OUTPUT_FILE)
   val stemmer: KrovetzStemmer = new KrovetzStemmer()
   val retrieval: Retrieval = RetrievalFactory.instance(INDEX_PATH)
 
   // Type of vector to be used
-  val VECTOR_TYPE: VectorType = W2V
+  val VECTOR_TYPE: VectorType = Idf
 
   // Create the parameters for the search
   val params: Parameters = {
@@ -61,7 +61,7 @@ object VectorScores {
 
     // Stem the query
     val stemmedQuery =
-      query.text.split(" ").map(x => stemmer.stem(x)).mkString(" ")
+      query.text.split(" +").map(stemmer.stem).mkString(" ")
 
     // Transform the query for the retrieval
     val root: Node = StructuredQuery.parse(stemmedQuery)
