@@ -44,14 +44,16 @@ object FeatureEngineering {
     p.set("mu", 2000)
 
     // write to file
-    val pw = new PrintWriter("ranklib_G7.txt")
+    val pw = new PrintWriter("ranklib_G7_3.txt")
 
     // Run for each query
     queries.foreach { query =>
       queryCount += 1
-      if(queryCount>990) break
       print(queryCount)
-      pw.write(runQuery(query, p, globalParams))
+//      if(queryCount >= 1986){
+      if(queryCount > 1976){
+        pw.write(runQuery(query, p, globalParams))
+      }
       println()
     }
 
@@ -63,7 +65,7 @@ object FeatureEngineering {
     val retrieval: Retrieval = RetrievalFactory.instance(globalParams)
     val id: String = query.number
     val queryText: String = query.text
-//    val rmQueryText = "#rm(" + query + ")"
+    val rmQueryText = "#rm(" + query + ")"
 
     val root: Node = StructuredQuery.parse(queryText)
 
@@ -102,10 +104,10 @@ object FeatureEngineering {
       // Get the vector of that document
       val docVec = doc2tfidf(doc)
 
-      val TFIDFscore = cosineSimilarity(normalQvec, docVec)
-      val TFIDFRM1score = cosineSimilarity(rmVec, docVec)
+      val TFIDFscore = if(!cosineSimilarity(normalQvec, docVec).isNaN) cosineSimilarity(normalQvec, docVec) else 0
+      val TFIDFRM1score = if(!cosineSimilarity(rmVec, docVec).isNaN) cosineSimilarity(normalQvec, docVec) else 0
 
-      retBlock += s"${relevancy} qid:${queryCount} 1:${bm25score} 2:${TFIDFscore} 3:${TFIDFRM1score} # Query: ${id} , DocID: ${docName} \n"
+      retBlock += s"${relevancy} \t qid:${queryCount} \t 1:${bm25score.toFloat} \t 2:${TFIDFscore.toFloat} \t 3:${TFIDFRM1score.toFloat} \t # \t ${id} \t ${docName} \n"
     })
     retBlock
   }
