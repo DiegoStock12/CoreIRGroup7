@@ -8,6 +8,8 @@ import query.DataReader.{SingleQuery, readQueryToRelevantDocuments}
 import query_expansion.Rocchio.{QREL_PATH, expandQuery, indetifyDocs, prepareQueries, results2Vector, runQuery}
 import vector.TFIDF._
 import vector.Utils._
+import org.lemurproject.galago.core.parse.stem.KrovetzStemmer
+import scala.math.{abs, max}
 
 import java.io.PrintWriter
 
@@ -27,13 +29,15 @@ object FeatureEngineering {
 
   var queryCount: Int = 0
 
+  val stemmer: KrovetzStemmer = new KrovetzStemmer()
+
   def main(args: Array[String]): Unit = {
 
     // Set the global parameters
     val globalParams: Parameters = Parameters.create()
     globalParams.set("index", INDEX_PATH)
 
-    // Spaghetti code, I'm hungry.
+    // prepare the queries
     val (queries, queryParams) = prepareQueries()
 
     // Set the parameters for the query retrieval
@@ -51,7 +55,7 @@ object FeatureEngineering {
       queryCount += 1
       print(queryCount)
 //      if(queryCount >= 1986){
-      if(queryCount > 1976){
+      if(queryCount >= 1600 && queryCount < 2400){
         pw.write(runQuery(query, p, globalParams))
       }
       println()
@@ -64,10 +68,12 @@ object FeatureEngineering {
   def runQuery(query: SingleQuery, p: Parameters, globalParams: Parameters): String = {
     val retrieval: Retrieval = RetrievalFactory.instance(globalParams)
     val id: String = query.number
-    val queryText: String = query.text
-    val rmQueryText = "#rm(" + query + ")"
+    val stemmedQuery =
+      query.text.split(" ").map(x => stemmer.stem(x)).mkString(" ")
+    val rmQueryText = "#rm(" + stemmedQuery + ")"
+//    println(stemmedQuery)
 
-    val root: Node = StructuredQuery.parse(queryText)
+    val root: Node = StructuredQuery.parse(stemmedQuery)
 
     // Transform the query with the parameters
     val transf = retrieval.transformQuery(root, p)
@@ -92,7 +98,7 @@ object FeatureEngineering {
         transf.getInternalNodes.asScala.map(_.getChild(1).getDefaultParameter)
 
       // Get the normal tfidf vector and the augmented vector
-      val normalQvec = query2tfidf(queryText)
+      val normalQvec = query2tfidf(stemmedQuery)
       val rmVec = query2tfidf(terms.mkString(" "))
 
       // Get the document to compare it
@@ -104,10 +110,11 @@ object FeatureEngineering {
       // Get the vector of that document
       val docVec = doc2tfidf(doc)
 
-      val TFIDFscore = if(!cosineSimilarity(normalQvec, docVec).isNaN) cosineSimilarity(normalQvec, docVec) else 0
-      val TFIDFRM1score = if(!cosineSimilarity(rmVec, docVec).isNaN) cosineSimilarity(normalQvec, docVec) else 0
 
-      retBlock += s"${relevancy} \t qid:${queryCount} \t 1:${bm25score.toFloat} \t 2:${TFIDFscore.toFloat} \t 3:${TFIDFRM1score.toFloat} \t # \t ${id} \t ${docName} \n"
+      val TFIDFscore =  max(cosineSimilarity(normalQvec, docVec), 0.0)
+      val TFIDFRM3score = max(cosineSimilarity(rmVec, docVec), 0.0)
+//      println(s"1:${bm25score.toFloat} \t 2:${TFIDFscore.toFloat} \t 3:${TFIDFRM3score.toFloat}")
+      retBlock += s"${relevancy} \t qid:${queryCount} \t 1:${bm25score.toFloat} \t 2:${TFIDFscore.toFloat} \t 3:${TFIDFRM3score.toFloat} \t # \t ${id} \t ${docName} \n"
     })
     retBlock
   }
