@@ -25,8 +25,9 @@ for x in fl:
     thisdoc = qerdoc[1]
     rocsim = 0.0
     if query in query_map:
-        if thisdoc in query_map[query]:
-            rocsim = query_map[query][thisdoc]
+        docdict = query_map[query]
+        if thisdoc in docdict:
+            rocsim = docdict[thisdoc]
 
     w.write(line[0] + "4:" + str(rocsim) + " \t # \t " + line[1])
 
