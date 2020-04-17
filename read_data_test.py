@@ -8,7 +8,7 @@ import os
 articles = "../corpus/train/train.fold0.cbor.article.qrels"
 # outlines = "../corpus/train/train.fold0.cbor.outlines"
 paragraphs = "test200/train.test200.fold0.cbor.paragraphs"
-outlines = "test200/train.test200.cbor.outlines"
+outlines = "test200/train.pages.cbor-outlines.cbor"
 
 
 def print_headers(file=outlines):
@@ -114,8 +114,8 @@ def create_queries(file):
     out_stream = open(out, 'w')
     queries = dict()
     queries['index'] = r'../ir_core/index'
-    queries['requested'] = 100
-    queries['processingModel'] = 'org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel'
+    # queries['requested'] = 100
+    # queries['processingModel'] = 'org.lemurproject.galago.core.retrieval.processing.RankedDocumentModel'
     # queries['scorer'] = 'bm25'
     queries['queries'] = []
     for p in iter_annotations(open(file, 'rb')):

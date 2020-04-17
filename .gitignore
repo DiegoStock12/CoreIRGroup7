@@ -8,3 +8,5 @@ test200
 *.gz
 project
 trec_car
+*.run
+galagojava
