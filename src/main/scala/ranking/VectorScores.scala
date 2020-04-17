@@ -13,9 +13,10 @@ import org.lemurproject.galago.utility.Parameters
 import query.DataReader
 import query.DataReader.{QueryObject, SingleQuery}
 import vector.TFIDF.query2tfidf
-import vector.Utils.{INDEX_PATH, calculateDocumentVectors, cosineSimilarity}
+import vector.Utils.{INDEX_PATH, INDEX_PATH_TRAIN, calculateDocumentVectors, cosineSimilarity}
 import vector.WordEmbeddings.query2Vec
 import vector.{Idf, VectorType, W2V}
+import query_expansion.Rocchio.processExpandedQuery
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable
@@ -119,7 +120,7 @@ object VectorScores {
     * @param query
     * @param topK
     */
-  private def saveResults(query: SingleQuery,
+  def saveResults(query: SingleQuery,
                           topK: List[(String, Double)]): Unit = {
 
     // Save the results in the appropriate format
@@ -203,7 +204,7 @@ object VectorScores {
 
       case "rocchio" =>
         println("Including Rocchio feedback")
-        throw new UnsupportedOperationException("Not yet implemented")
+        processExpandedQuery(queryObject.queries, params)
 
       case "default" =>
         println("Running without feedback")
